@@ -1,0 +1,25 @@
+memory x3500 FFF0
+memory x3501 2463
+
+memory x3502 x0048
+memory x3503 x0065
+memory x3504 x006C
+memory x3505 x006C
+memory x3506 x006F
+memory x3507 x0020
+memory x3508 x0057
+memory x3509 x006F
+memory x350A x0072
+memory x350B x006C
+memory x350C x0064
+memory x350D x0021	
+
+memory x4000 xFFFE
+memory x4001 x4002
+memory x4002 xFFFC
+memory x4003 x4004
+memory x4004 xFFFA
+memory x4005 x4006
+memory x4006 xFFF8
+memory x4007 x4008
+memory x4008 xFFF6
