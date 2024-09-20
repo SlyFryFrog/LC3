@@ -12,12 +12,22 @@
 ; = 2 + 2 + 2 + 2
 ; = 4 + 2 + 2
 ; = 6 + 2 = 8
+
+; 5^3
+; 5 + 5 + 5 + 5 + 5
+; 25 + 25 + 25 + 25 + 25
+
+; 7^3
+; 7 + 7 + 7 + 7 + 7 + 7 + 7
+; 49 + 49 + 49 + 49 + 49 + 49 = 49
+
 LD R0, INTX
 LD R1, INTY
 
 AND R2, R2, #0 ; R2 = 0
 AND R3, R3, #0 ; R3 = 0
 AND R4, R4, #0 ; R4 = 0
+AND R5, R5, #0
 
 ; Base Cases
 ; x^0 = 1
@@ -30,23 +40,32 @@ AND R4, R4, #0 ; R4 = 0
     ADD R1, R1, #0 ; R1 + 0
     BRz YZERO
 
-ADD R5, R0, #0
-NOT R5, R5
-ADD R5, R5, #1	; -R0
+ADD R5, R0, #0  ; current = x
 
 LOOP
-    AND R3, R3, #0  ; j = 0
+
+    MULTIPLY
+        ADD R3, R3, #1  ; j++
+
+        ADD R4, R4, R5  ; R4 += R5
+
+        NOT R6, R0
+        ADD R6, R6, #1  ; -R0
+
+        ADD R6, R6, R3
+        BRn MULTIPLY
+    ENDMULTIPLY
     
-    LOOP2
-        ADD R4, R4, R0 ; R4 += R0
-        ADD R6, R2, R5 ; i < 2
+    AND R5, R5, #0
+    ADD R5, R4, #0
 
     ADD R2, R2, #1 ; i++
-    ; Implement meeeee
+    NOT R6, R1
+    ADD R6, R6, #1
+    ADD R6, R6, R2
+    ADD R6, R6, #1
 
-    ADD R6, R2, R5 ; i < 2
-    BRnp LOOP
-    ENDLOOP2
+    BRn LOOP
 ENDLOOP
 
 BRnzp EXIT
