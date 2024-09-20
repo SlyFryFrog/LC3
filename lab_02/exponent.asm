@@ -33,12 +33,13 @@ AND R5, R5, #0
 ; x^0 = 1
 ; 0^y = 0
 
-; if x == 0
-    ADD R0, R0, #0 ; R0 + 0
-    BRz XZERO
-; elif y == 0
+; if y == 0
     ADD R1, R1, #0 ; R1 + 0
     BRz YZERO
+; elif x == 0
+    ADD R0, R0, #0 ; R0 + 0
+    BRz XZERO
+
 
 ADD R5, R0, #0  ; current = x
 
@@ -85,7 +86,7 @@ EXIT
 
 ; Variables
 INTX .FILL #2
-INTY .FILL #3
+INTY .FILL #4
 RESULT .FILL x8000
 
 .END
