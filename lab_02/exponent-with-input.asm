@@ -52,17 +52,17 @@ AND R6, R6, #0
 AND R3, R3, #0
 ADD R4, R1, #0
 
+AND R0, R0, #0
+ADD R0, R2, #0
+
+BRz Y_ZERO
+
 EXPONENT
 
     BRz I_ZERO
     BRnzp INNER_EXPONENT
 
     I_ZERO
-        AND R0, R0, #0
-        ADD R0, R2, #0
-
-        BRz Y_ZERO
-
         AND R3, R3, x0000
         ADD R3, R1, x0000  ; R6 = x
         BRnzp INNER_EXPONENT
@@ -99,6 +99,7 @@ EXPONENT
 END_EXPONENT
 
 Y_ZERO
+    AND R4, R4, #0
     ADD R4, R4, #1
     STI R4, RESULT_ADDR
     BRnzp EXIT
