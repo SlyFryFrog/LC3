@@ -1,92 +1,91 @@
 .ORIG x3000
-; R0 = x
-; R1 = y
-; R2 = i
-; R3 = j
-; R4 = accumulator/result
-; R5 = loopvar
 
 
-; Exponential to addition
-; 2^3 = 2 * 2 * 2
-; = 2 + 2 + 2 + 2
-; = 4 + 2 + 2
-; = 6 + 2 = 8
+; R1    x
+; R2    y
+; R3    ASCII Offset
+; R4    result
+; R5    i
+; R6    j
+; R0    current value being added
 
-; 5^3
-; 5 + 5 + 5 + 5 + 5
-; 25 + 25 + 25 + 25 + 25
 
-; 7^3
-; 7 + 7 + 7 + 7 + 7 + 7 + 7
-; 49 + 49 + 49 + 49 + 49 + 49 = 49
+LD R3, ASCII_OFFSET
 
-LD R0, INTX
-LD R1, INTY
-
-AND R2, R2, #0 ; R2 = 0
-AND R3, R3, #0 ; R3 = 0
-AND R4, R4, #0 ; R4 = 0
+AND R4, R4, #0
 AND R5, R5, #0
+AND R6, R6, #0
 
-; Base Cases
-; x^0 = 1
-; 0^y = 0
-
-; if y == 0
-    ADD R1, R1, #0 ; R1 + 0
-    BRz YZERO
-; elif x == 0
-    ADD R0, R0, #0 ; R0 + 0
-    BRz XZERO
+LD R1, INTX  ; R1 = x
+LD R2, INTY  ; R2 = y
 
 
-ADD R5, R0, #0  ; current = x
+; R3 = current value
 
-LOOP
+AND R3, R3, #0
+ADD R4, R1, #0
 
-    MULTIPLY
-        ADD R3, R3, #1  ; j++
+AND R0, R0, #0
+ADD R0, R2, #0
+  
+BRz Y_ZERO
 
-        ADD R4, R4, R5  ; R4 += R5
+EXPONENT
 
-        NOT R6, R0
-        ADD R6, R6, #1  ; -R0
+    BRz I_ZERO
+    BRnzp INNER_EXPONENT
 
-        ADD R6, R6, R3
-        BRn MULTIPLY
-    ENDMULTIPLY
+    I_ZERO
+        AND R3, R3, #0
+        ADD R3, R1, #0  ; R6 = x
+        
+        BRnzp INNER_EXPONENT
+    END_I_ZERO
+
+    INNER_EXPONENT
+        ADD R4, R4, R3  ; result += current_value
+
+        ADD R6, R6, #1  ; j++
+
+        NOT R0, R1
+        ADD R0, R0, #1  ; -x
+        ADD R0, R0, R6  ; x_copy = j - x_copy
+        ADD R0, R0, #1
+
+        BRn INNER_EXPONENT
+    END_INNER_EXPONENT
+
+    AND R6, R6, #0  ; j = 0
+    AND R3, R3, #0
+    ADD R3, R4, #0  ; current_value = result
+
+    ADD R5, R5, #1  ; i++
+
+    NOT R0, R2
+    ADD R0, R0, #1
+    ADD R0, R0, R5  ; y_length = i - y_length
+
+    BRn EXPONENT
     
-    AND R5, R5, #0
-    ADD R5, R4, #0
+    STI R4, RESULT_ADDR ; store R4 in memory
 
-    ADD R2, R2, #1 ; i++
-    NOT R6, R1
-    ADD R6, R6, #1
-    ADD R6, R6, R2
-    ADD R6, R6, #1
-
-    BRn LOOP
-ENDLOOP
-
-BRnzp EXIT
-
-YZERO   ; if y == 0
-    ADD R4, R4, #1 ; R4 += 1
     BRnzp EXIT
+END_EXPONENT
 
-XZERO   ; if x == 0
-    ADD R4, R4, #0 ; R4 += 0
+Y_ZERO
+    AND R4, R4, #0
+    ADD R4, R4, #1
+    STI R4, RESULT_ADDR
     BRnzp EXIT
 
 EXIT
-    STI R4, RESULT ; store R4 in RESULT's address
     HALT
 
 
 ; Variables
-INTX .FILL #2
-INTY .FILL #4
-RESULT .FILL x8000
+INTX .FILL #5
+INTY .FILL #0
+RESULT_ADDR .FILL x8000
+ASCII_OFFSET .FILL #-48
 
 .END

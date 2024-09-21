@@ -56,22 +56,27 @@ EXPONENT
 
     BRz I_ZERO
     BRnzp INNER_EXPONENT
-    
+
     I_ZERO
-        AND R3, R3, #0
-        ADD R3, R1, #0  ; R6 = x
+        AND R0, R0, #0
+        ADD R0, R2, #0
+
+        BRz Y_ZERO
+
+        AND R3, R3, x0000
+        ADD R3, R1, x0000  ; R6 = x
         BRnzp INNER_EXPONENT
     END_I_ZERO
 
     INNER_EXPONENT
         ADD R4, R4, R3  ; result += current_value
 
-        ADD R6, R6, #1  ; j++
+        ADD R6, R6, x0001  ; j++
 
-        NOT R0, R1      
-        ADD R0, R0, #1  ; -x
+        NOT R0, R1
+        ADD R0, R0, x0001  ; -x
         ADD R0, R0, R6  ; x_copy = j - x_copy
-        ADD R0, R0, #1
+        ADD R0, R0, x0001
 
         BRn INNER_EXPONENT
     END_INNER_EXPONENT
@@ -93,6 +98,10 @@ EXPONENT
     BRnzp EXIT
 END_EXPONENT
 
+Y_ZERO
+    ADD R4, R4, #1
+    STI R4, RESULT_ADDR
+    BRnzp EXIT
 
 EXIT
     HALT
