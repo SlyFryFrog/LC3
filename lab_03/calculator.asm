@@ -239,60 +239,59 @@ PRINT_DIGITS    ; Make work for 4 digits
     ST R3, PRINT_DIGITS_R3
     ST R7, PRINT_DIGITS_R7
 
-    LD R1, ASCII_OFFSET
+    ; R1 = result
+    ; R2 = ASCII_OFFSET
+    ; Stores param R0 in R1 to print later
+    AND R1, R1, #0
+    ADD R1, R0, #0
+    LD R2, ASCII_OFFSET
+    NOT R2, R2
+    ADD R2, R2, #1  ; R1 = 48
 
-    NOT R1, R1
-    ADD R1, R1, #1  ; R1 = 48
-
-    ; Divide by 10 until only one's place remains
-    AND R3, R3, #0
-    ADD R3, R3, #-1
-
-    ADD R0, R0, #0
+    ; Checks to see if the number is negative or not
+    ADD R1, R1, #0
     BRzp DIVIDE_BASE_10
     
     ; Makes negative number positive
     NOT R0, R0
     ADD R0, R0, #1
 
-    AND R2, R2, #0
-    ADD R2, R0, #0
-
     ; Prints '-' before number if negative
     LD R0, NEGATIVE_SIGN
     OUT
 
-    AND R0, R0, #0
-    ADD R0, R2, #0
-
     DIVIDE_BASE_10
+        INNER_DIVIDE_BASE_10
+        
+        ADD R0, R3, R2
+        OUT
         ; -10^n
         ; if result == neg
         ; +100
         ; Print i
         ; repeat
-        ADD R3, R3, #1      ; i++
-        
-        ADD R0, R0, #-10
-        BRzp DIVIDE_BASE_10
+    ;     ADD R3, R3, #1      ; i++
 
-    FIRST_CHAR
-        AND R2, R2, #0
-        ADD R2, R0, #0
+    ;     ADD R0, R0, #-10
+    ;     BRzp DIVIDE_BASE_10
 
-        AND R0, R0, #0
-        ADD R0, R3, #0
-        BRz SECOND_CHAR     ; if i == 0; then skip
+    ; FIRST_CHAR
+    ;     AND R2, R2, #0
+    ;     ADD R2, R0, #0
 
-        ADD R0, R0, R1
-        OUT
-    SECOND_CHAR
-        AND R0, R0, #0
-        ADD R0, R2, #0
+    ;     AND R0, R0, #0
+    ;     ADD R0, R3, #0
+    ;     BRz SECOND_CHAR     ; if i == 0; then skip
 
-        ADD R0, R0, #10
-        ADD R0, R0, R1
-        OUT
+    ;     ADD R0, R0, R1
+    ;     OUT
+    ; SECOND_CHAR
+    ;     AND R0, R0, #0
+    ;     ADD R0, R2, #0
+
+    ;     ADD R0, R0, #10
+    ;     ADD R0, R0, R1
+    ;     OUT
 
     LD R1, PRINT_DIGITS_R1
     LD R2, PRINT_DIGITS_R2
@@ -303,6 +302,7 @@ PRINT_DIGITS_R1 .FILL #0
 PRINT_DIGITS_R2 .FILL #0
 PRINT_DIGITS_R3 .FILL #0
 PRINT_DIGITS_R7 .BLKW  #1
+RESERVED .BLKW #4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .END
