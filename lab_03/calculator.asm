@@ -237,72 +237,110 @@ PRINT_DIGITS    ; Make work for 4 digits
     ST R1, PRINT_DIGITS_R1
     ST R2, PRINT_DIGITS_R2
     ST R3, PRINT_DIGITS_R3
+    ST R4, PRINT_DIGITS_R4
     ST R7, PRINT_DIGITS_R7
 
     ; R1 = result
     ; R2 = ASCII_OFFSET
-    ; Stores param R0 in R1 to print later
-    AND R1, R1, #0
-    ADD R1, R0, #0
     LD R2, ASCII_OFFSET
     NOT R2, R2
     ADD R2, R2, #1  ; R1 = 48
 
+    ; Stores param R0 in R1 to print later
+    AND R1, R1, #0
+    ADD R1, R0, #0
     ; Checks to see if the number is negative or not
-    ADD R1, R1, #0
     BRzp DIVIDE_BASE_10
     
     ; Makes negative number positive
-    NOT R0, R0
-    ADD R0, R0, #1
+    NOT R1, R1
+    ADD R1, R1, #1
 
     ; Prints '-' before number if negative
     LD R0, NEGATIVE_SIGN
     OUT
 
+    BRnzp DIVIDE_BASE_10
+
     DIVIDE_BASE_10
+        ; R0 = char to be printed
+        ; R1 = result
+        ; R2 = ASCII -> 48
+        AND R3, R3, #0          ; i
+        LD R4, NEG_1000         ; -10^n
+        AND R5, R5, #0          ; is first 0
+
         INNER_DIVIDE_BASE_10
-        
-        ADD R0, R3, R2
-        OUT
-        ; -10^n
-        ; if result == neg
-        ; +100
-        ; Print i
-        ; repeat
-    ;     ADD R3, R3, #1      ; i++
+            ADD R3, R3, #1      ; i++
+            ADD R1, R1, R4      ; R0 = result - 10^n
+            BRzp INNER_DIVIDE_BASE_10
 
-    ;     ADD R0, R0, #-10
-    ;     BRzp DIVIDE_BASE_10
+            NOT R0, R4
+            ADD R0, R0, #1
+            ADD R1, R1, R0      ; R1 += 10^n
+            
+            AND R0, R0, #0
+            ADD R0, R3, #-1
+            BRz IS_LEADING_ZERO
+            BRnzp PRINT
 
-    ; FIRST_CHAR
-    ;     AND R2, R2, #0
-    ;     ADD R2, R0, #0
+            PRINT
+                ADD R5, R5, #1
+                ADD R0, R0, R2      ; char += 48
+                OUT                 ; Prints char
+                BRnzp IF_R4_EQ_100
 
-    ;     AND R0, R0, #0
-    ;     ADD R0, R3, #0
-    ;     BRz SECOND_CHAR     ; if i == 0; then skip
+            IS_LEADING_ZERO
+                ADD R5, R5, #0
+                BRnp PRINT
 
-    ;     ADD R0, R0, R1
-    ;     OUT
-    ; SECOND_CHAR
-    ;     AND R0, R0, #0
-    ;     ADD R0, R2, #0
+                BRnzp IF_R4_EQ_100
 
-    ;     ADD R0, R0, #10
-    ;     ADD R0, R0, R1
-    ;     OUT
+            IF_R4_EQ_100
+                AND R3, R3, #0
+                ; R4 = -100
+                LD R0, NEG_100
+                NOT R0, R0
+                ADD R0, R0, #1
+                ADD R0, R0, R4
+                BRzp IF_R4_EQ_10
+                LD R4, NEG_100
+                BRnzp INNER_DIVIDE_BASE_10
+            IF_R4_EQ_10
+                ; R4 = -10
+                AND R0, R0, #0
+                ADD R0, R0, #10
+                ADD R0, R0, R4
+                BRzp IF_R4_EQ_1
+                AND R4, R4, #0
+                ADD R4, R4, #-10
+                BRnzp INNER_DIVIDE_BASE_10
+            IF_R4_EQ_1
+                ; R4 = -1
+                AND R0, R0, #0
+                ADD R0, R0, #1
+                ADD R0, R0, R4
 
-    LD R1, PRINT_DIGITS_R1
-    LD R2, PRINT_DIGITS_R2
-    LD R3, PRINT_DIGITS_R3
-    LD R7, PRINT_DIGITS_R7
+                BRzp DIV_FI
+                AND R4, R4, #0
+                ADD R4, R4, #-1
+                BRnzp INNER_DIVIDE_BASE_10
+
+    DIV_FI
+        LD R1, PRINT_DIGITS_R1
+        LD R2, PRINT_DIGITS_R2
+        LD R3, PRINT_DIGITS_R3
+        LD R4, PRINT_DIGITS_R4
+        LD R7, PRINT_DIGITS_R7
 RET
+NEG_1000 .FILL #-1000
+NEG_100 .FILL #-100
+
 PRINT_DIGITS_R1 .FILL #0
 PRINT_DIGITS_R2 .FILL #0
 PRINT_DIGITS_R3 .FILL #0
+PRINT_DIGITS_R4 .FILL #0
 PRINT_DIGITS_R7 .BLKW  #1
-RESERVED .BLKW #4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 .END
