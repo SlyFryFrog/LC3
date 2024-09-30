@@ -322,6 +322,7 @@ PRINT_DIGITS    ; Make work for 4 digits
                 ADD R0, R0, R4
 
                 BRzp DIV_FI
+                ADD R5, R5, #1
                 AND R4, R4, #0
                 ADD R4, R4, #-1
                 BRnzp INNER_DIVIDE_BASE_10
