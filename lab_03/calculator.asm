@@ -238,6 +238,7 @@ PRINT_DIGITS    ; Make work for 4 digits
     ST R2, PRINT_DIGITS_R2
     ST R3, PRINT_DIGITS_R3
     ST R4, PRINT_DIGITS_R4
+    ST R5, PRINT_DIGITS_R5
     ST R7, PRINT_DIGITS_R7
 
     ; R1 = result
@@ -332,6 +333,7 @@ PRINT_DIGITS    ; Make work for 4 digits
         LD R2, PRINT_DIGITS_R2
         LD R3, PRINT_DIGITS_R3
         LD R4, PRINT_DIGITS_R4
+        LD R5, PRINT_DIGITS_R5
         LD R7, PRINT_DIGITS_R7
 RET
 NEG_1000 .FILL #-1000
@@ -341,6 +343,7 @@ PRINT_DIGITS_R1 .FILL #0
 PRINT_DIGITS_R2 .FILL #0
 PRINT_DIGITS_R3 .FILL #0
 PRINT_DIGITS_R4 .FILL #0
+PRINT_DIGITS_R5 .FILL #0
 PRINT_DIGITS_R7 .BLKW  #1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
