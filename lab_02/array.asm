@@ -25,7 +25,7 @@ LOOP BRz EXIT
 		OUT
 
 		; ; Subtract x0030 from input
-		; ADD R0, R0, R4
+		ADD R0, R0, R4
 
 		; Stores input in array with offset of 0
 		STR R0, R5, #0
@@ -45,7 +45,7 @@ LOOP BRz EXIT
 
 EXIT
 	LEA R0, ARRAY_SIZE_ADDR
-	PUTS
+	PUTS	; Can print array if needed (must add ascii 48 to it)
 	HALT
 
 

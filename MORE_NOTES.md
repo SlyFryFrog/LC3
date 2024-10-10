@@ -19,6 +19,34 @@ variables
             - Use R5 for this
             - Keeps track of the BOTTOM of the current frame
 
+### C
+
+- Preprocessor
+    - macro substitution
+        - conditional compilation
+        - “source-level” transformations
+    - output is still C
+- Compiler
+    - generates object file
+    - machine instructions
+- Linker
+    - combine object files (including libraries)
+    - into executable image
+
+- Source Code Analysis
+    - “front end”
+    - parses programs to identify its pieces
+        - variables, expressions, statements, functions, etc.
+    - depends on language (not on target machine)
+- Code Generation
+    - “back end”
+    - generates machine code from analyzed source
+    - may optimize machine code to make it run more efficiently
+    - very dependent on target machine
+- Symbol Table
+    - map between symbolic names and items
+    - like assembler, but more kinds of information
+    - stores information like names and scopes of variables and functions, objects, classes, etc.
 
 ## Definitions
 
@@ -36,6 +64,7 @@ variables
         - Return Values
     - When you enter into a new function/subroutine, you will move your stack pointer to the top of this new area
 
+    - Traps use a vector table
 # LC3
 
 ## Overview
@@ -47,4 +76,5 @@ variables
 
  - JSR - Jump to subroutine
  - RET - Return
+ 
 

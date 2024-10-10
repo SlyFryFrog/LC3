@@ -1,2 +1,0 @@
-; ADD DR, SR1, IMM5
-; ADD R4, R4, #3
