@@ -48,6 +48,15 @@ variables
     - like assembler, but more kinds of information
     - stores information like names and scopes of variables and functions, objects, classes, etc.
 
+
+Preprocessing: The C code is first passed through a preprocessor, which handles directives like #include and #define. This step modifies the code by including headers and expanding macros.
+
+Compilation: The preprocessed code is then translated into assembly language by the compiler. This assembly code is specific to the target machine architecture.
+
+Assembly: The assembly code is converted into object code, which consists of machine language instructions. This is done by an assembler. Object code is still not a complete program, as it might have unresolved references (like function calls to libraries).
+
+Linking: The linker combines the object code with any required libraries or external functions to produce a final executable. This executable file contains all the machine language instructions needed for the program to run on the target system.
+
 ## Definitions
 
 - Global Variable Pointer - The global variable pointer always points to the top of your global variables section that follows the last instruction in your main section of instructions.
@@ -75,6 +84,6 @@ variables
 ## Subroutines
 
  - JSR - Jump to subroutine
+    - using 11 bits => label can be within +1024 / -1023 lines of JSR instruction
  - RET - Return
  
-
