@@ -1,0 +1,95 @@
+.ORIG x3000
+
+; R1 = Array
+; R2 = Array index (i)
+; R4 = temp
+LEA R1, ARRAY
+AND R2, R2, #0
+
+JSR GET_LENGTH
+JSR FILL_ARRAY
+
+ARRAY .BLKW #20
+ENTER_KEY .FILL #-10
+ASCII_OFFSET .FILL #-48
+LENGTH .BLKW #1
+
+; Get length of array
+GET_LENGTH
+    ST R1, GET_LENGTH_R1
+    ST R2, GET_LENGTH_R2
+    ST R3, GET_LENGTH_R3
+    ST R7, GET_LENGTH_R7
+
+    ; R1 stores length
+    LD R2, ENTER_KEY
+    LD R3, ASCII_OFFSET
+
+    GET_LENGTH_LOOP             ; DOESNT MULTIPLY BY BASE 10, just an example
+        GETC
+        OUT
+
+        ; Adds input - 48 to length
+        ADD R1, R1, R0
+        ADD R1, R1, R3
+
+        ; Checks if input was LF
+        ADD R3, R0, R2
+        BRnp GET_LENGTH_LOOP
+
+        ST R1, LENGTH
+
+    LD R1, GET_LENGTH_R1
+    LD R2, GET_LENGTH_R2
+    LD R3, GET_LENGTH_R3
+    LD R7, GET_LENGTH_R7
+
+    RET
+GET_LENGTH_END
+
+GET_LENGTH_R1 .FILL #0
+GET_LENGTH_R2 .FILL #0
+GET_LENGTH_R3 .FILL #0
+GET_LENGTH_R7 .BLKW #1
+;
+
+FILL_ARRAY
+    ST R1, FILL_ARRAY_R1
+    ST R2, FILL_ARRAY_R2
+    ST R3, FILL_ARRAY_R3
+    ST R7, FILL_ARRAY_R7
+
+    LEA R1, ARRAY
+    LD R2, LENGTH
+    AND R3, R3, #0
+    LD R4, ASCII_OFFSET
+
+    FILL_ARRAY_LOOP
+        LDR R0, R1, #0
+        GETC
+        OUT
+        ADD R0, R0, R4
+        STR R0, R1, #0
+
+        ADD R1, R1, #1
+        
+        AND R0, R0, #0
+        ADD R3, R3, #-1
+        ADD R0, R2, R3
+        BRnp FILL_ARRAY_LOOP
+        HALT
+    
+    LD R1, FILL_ARRAY_R1
+    LD R2, FILL_ARRAY_R2
+    LD R3, FILL_ARRAY_R3
+    LD R7, FILL_ARRAY_R7
+    HALT
+    RET
+FILL_ARRAY_END
+
+FILL_ARRAY_R1 .FILL #0
+FILL_ARRAY_R2 .FILL #0
+FILL_ARRAY_R3 .FILL #0
+FILL_ARRAY_R7 .BLKW #1
+
+.END
