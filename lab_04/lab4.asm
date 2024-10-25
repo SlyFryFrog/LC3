@@ -166,19 +166,19 @@ RET
 ; returns int
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SQUARE
-	; int x; R6 = x5FF3
-	; return value, R6 = x5FF2
+	; int x; R6 = x5FF4
+	; return value, R6 = x5FF3
 	ADD R6, R6, #-1
-	STR R7, R6, #0	; sum of squares return address (R7), R6 = x5FF1
+	STR R7, R6, #0	; sum of squares return address (R7), R6 = x5FF2
 
 	ADD R6, R6, #-1
-	STR R5, R6, #0	; previous frame pointer (R5), R6 = x5FF0
+	STR R5, R6, #0	; previous frame pointer (R5), R6 = x5FF1
 
 	; int product = 0
 	LDR R0, R6, #2
 	AND R0, R0, #0
 	ADD R6, R6, #-1
-	STR R0, R6, #0	; R6 = x5FEF
+	STR R0, R6, #0	; R6 = x5FF0
 
 	; for (int i = 0; i < num; i++) <- x*x
 		LDR R0, R6, #4
@@ -187,7 +187,7 @@ SQUARE
 
 		AND R0, R0, #0	; int i = 0;
 		ADD R6, R6, #-1
-		STR R0, R6, #0	; R6 = x5FEE
+		STR R0, R6, #0	; R6 = x5FEF
 
 		SQUARE_LOOP
 			LDR R0, R6, #0
@@ -213,17 +213,17 @@ SQUARE
 			STR R0, R6, #0	; product
 			BRnzp FI_SQUARE
 		END_SQUARE_LOOP
-			ADD R6, R6, #1	; pop int i, R6 = x5FEF
+			ADD R6, R6, #1	; pop int i, R6 = x5FF0
 			BRnzp FI_SQUARE
 
 	FI_SQUARE
 		; pop values
 		LDR R0, R6, #0	; product
 		STR R0, R6, #3	; return product
-		ADD R6, R6, #1	; R6 = x5FF0
+		ADD R6, R6, #1	; R6 = x5FF1
 
 		LDR R5, R6, #0
-		ADD R6, R6, #1	; R6 = x5FF1
+		ADD R6, R6, #1	; R6 = x5FF2
 
 		LDR R7, R6, #0
 		ADD R6, R6, #1	; return address, R6 = x5FF3
