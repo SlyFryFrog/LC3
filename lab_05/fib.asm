@@ -10,6 +10,7 @@ MAIN
     ADD R6, R6, #-1		; R6 = x5FFE
     ADD R5, R6, #0		; R5 = R6 = x5FFE
     STR R5, R6, #0		; previous frame pointer (R5)
+    
     ; setting frame pointer (R5)
     ADD R5, R6, #0		; R5 = R6 = x5FFE
 
@@ -38,8 +39,8 @@ MAIN
 
         JSR FIBONACCI       ; R6 = x5FFA    ; return address
 
-    ADD R6, R6, #2      ; R6 = x5FFC
-    LDR R0, R6, #-2     ; result = FIBONACCI(n);
+    ADD R6, R6, #2          ; R6 = x5FFC
+    LDR R0, R6, #-2         ; result = FIBONACCI(n);
     STR R0, R6, #0
 
     ;;;;;; PRINT CHARS ;;;;;;
@@ -58,36 +59,81 @@ MAIN
         
         LEA R0, FUNC_END    ; ) = 
         PUTS
-    HALT
 
     ;;;;;; PRINT SETUP ;;;;;;
         ADD R6, R6, #-1     ; R6 = x5FFB
         LDR R0, R6, #1      ; R6 = x5FFC
-        STR R0, R6, #0
+        STR R0, R6, #0      ; param int input = result
+        JSR PRINT
 
     LEA R0, NL
     PUTS
 
+LDR R5, R6, #0
+ADD R6, R6, #1
+LDR R7, R6, #0
+ADD R6, R6, #1
 HALT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; params int input
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; May the one reading this forgive me for my pasta code :D
 PRINT
     ;;;;;; INIT ;;;;;;
         ADD R6, R6, #-1
-        STR R7, R6, #0  ; return adress
+        STR R7, R6, #0  ; return address
 
         ADD R6, R6, #-1
         STR R5, R6, #0	; previous frame pointer (R5)
-    
+
     ADD R6, R6, #-1
+    AND R0, R0, #0
+    STR R0, R6, #0  ; int i
 
+    FOR_I   ; for (int i = 0; i < 10; i++)
+        LDR R0, R6, #0
+        ADD R0, R0, #1
+        STR R0, R6, #0
 
-    PRINT_LOOP
-        FOR_I   ; for (int i = 0; i < 10; i++)
+        LDR R0, R6, #3  ; int input
+        ADD R0, R0, #-10
+        STR R0, R6, #3
 
-            BRzp FOR_I
+        ADD R0, R0, #-10
+        BRp FOR_I
+
+    ADD R6, R6, #1  ; pop i
+
+    LD R1, N_ASCII
+    NOT R1, R1
+    ADD R1, R1, #1
+
+    LDR R0, R6, #-1 ; 10s place
+    ADD R0, R0, #-1 ; Checks if i = 1
+    BRnz SKIP_10
+        LDR R0, R6, #-1 ; 10s place
+        ADD R0, R0, R1
+        OUT
+
+    SKIP_10
+        LDR R0, R6, #2  ; 1s place
+        ADD R0, R0, R1
+        LDR R1, R6, #-1
+        ADD R1, R1, #-1
+    BRp SKIP_ADD_10
+    ADD R0, R0, #10
+    SKIP_ADD_10
+        OUT
+
+    BRnzp PRINT_CLEANUP
+
+    ;;;;;; CLEANUP ;;;;;;
+    PRINT_CLEANUP
+        LDR R5, R6, #0
+        ADD R6, R6, #1
+        LDR R7, R6, #0
+        ADD R6, R6, #1
 RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
