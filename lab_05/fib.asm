@@ -91,6 +91,15 @@ PRINT
     AND R0, R0, #0
     STR R0, R6, #0  ; int i
 
+    LD R1, N_ASCII
+    NOT R1, R1
+    ADD R1, R1, #1  ; -48
+
+    LDR R0, R6, #3  ; int input
+    ADD R0, R0, #-10
+    BRn SKIP_10
+    BRnzp FOR_I
+
     FOR_I   ; for (int i = 0; i < 10; i++)
         LDR R0, R6, #0
         ADD R0, R0, #1
@@ -103,27 +112,14 @@ PRINT
         ADD R0, R0, #-10
         BRp FOR_I
 
-    ADD R6, R6, #1  ; pop i
-
-    LD R1, N_ASCII
-    NOT R1, R1
-    ADD R1, R1, #1
-
-    LDR R0, R6, #-1 ; 10s place
-    ADD R0, R0, #-1 ; Checks if i = 1
-    BRnz SKIP_10
-        LDR R0, R6, #-1 ; 10s place
-        ADD R0, R0, R1
-        OUT
+    LDR R0, R6, #0 ; 10s place
+    ADD R0, R0, R1
+    OUT
 
     SKIP_10
+        ADD R6, R6, #1  ; pop i
         LDR R0, R6, #2  ; 1s place
         ADD R0, R0, R1
-        LDR R1, R6, #-1
-        ADD R1, R1, #-1
-    BRp SKIP_ADD_10
-    ADD R0, R0, #10
-    SKIP_ADD_10
         OUT
 
     BRnzp PRINT_CLEANUP
