@@ -3,6 +3,27 @@
 LD R6, STACK_PTR			;	LOAD the pointer to the bottom of the stack in R6	(R6 = x6000)
 LEA R4, GLOBAL_VARS			;	MAKE your global var pointer R4 point to globals	(R4 = ADDRESS(GLOBAL_VARS))
 
+;;;;;; GLOBALS ;;;;;;
+LEA R0, PROMPT_STR 
+STR R0, R4, #0
+ADD R4, R4, #1
+
+LEA R0, FUNC_BEGIN
+STR R0, R4, #0
+ADD R4, R4, #1
+
+LEA R0, FUNC_END
+STR R0, R4, #0
+ADD R4, R4, #1
+
+LEA R0, NL
+STR R0, R4, #0
+ADD R4, R4, #1
+
+LD R0, N_ASCII
+STR R0, R4, #0
+;;;;;;;;;;;;;;;;;;;;;
+
 MAIN
     ADD R6, R6, #-1		; R6 = x5FFF
     STR R7, R6, #0		; main return address (R7)
@@ -15,7 +36,7 @@ MAIN
     ADD R5, R6, #0		; R5 = R6 = x5FFE
 
     ; Prompt user
-    LEA R0, PROMPT_STR
+    LDR R0, R4, #-4
     PUTS
 
     ; Get user input
@@ -24,7 +45,7 @@ MAIN
 
     GETC
     OUT
-    LD R1, N_ASCII
+    LDR R1, R4, #0      ; -48
     ADD R0, R0, R1
 
     STR R0, R6, #0
@@ -44,20 +65,20 @@ MAIN
     STR R0, R6, #0
 
     ;;;;;; PRINT CHARS ;;;;;;
-        LEA R0, NL          ; \n
+        LDR R0, R4, #-1      ; \n
         PUTS
 
-        LEA R0, FUNC_BEGIN
+        LDR R0, R4, #-3
         PUTS                ; F(
 
         LDR R0, R6, #1      ; int n
-        LD R1, N_ASCII
+        LDR R1, R4, #0      ; -48
         NOT R1, R1
         ADD R1, R1, #1
         ADD R0, R0, R1
         OUT                 ; n
         
-        LEA R0, FUNC_END    ; ) = 
+        LDR R0, R4, #-2    ; ) = 
         PUTS
 
     ;;;;;; PRINT SETUP ;;;;;;
@@ -66,13 +87,17 @@ MAIN
         STR R0, R6, #0      ; param int input = result
         JSR PRINT
 
-    LEA R0, NL
+    LDR R0, R4, #-1
     PUTS
 
+ADD R6, R6, #2  ; x5FFC -> x5FFE
+LDR R0, R6, #-2 ; x5FFE -> x5FFC
+STR R0, R6, #2  ; x5FFE -> x6000
+
 LDR R5, R6, #0
-ADD R6, R6, #1
+ADD R6, R6, #1  ; x5FFF
 LDR R7, R6, #0
-ADD R6, R6, #1
+ADD R6, R6, #1  ; x6000
 HALT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -129,7 +154,7 @@ PRINT
         LDR R5, R6, #0
         ADD R6, R6, #1
         LDR R7, R6, #0
-        ADD R6, R6, #1
+        ADD R6, R6, #2  ; pop param
 RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -190,6 +215,7 @@ FIBONACCI
         STR R1, R6, #2  ; result += F(n - 2)
 
         BRnzp FIBONACCI_CLEANUP
+
     ;;;;;; CLEANUP ;;;;;;
     FIBONACCI_CLEANUP
         LDR R5, R6, #0
@@ -198,7 +224,7 @@ FIBONACCI
         ADD R6, R6, #1  ; result
 RET
 
-GLOBAL_VARS		.BLKW #0	;	Global variables start here
+GLOBAL_VARS		.BLKW #5	;	Global variables start here
 STACK_PTR		.FILL x6000	;	STACK_PTR is a pointer to the bottom of the stack (x6000)
 PROMPT_STR .STRINGZ "Enter a number n: "
 FUNC_BEGIN .STRINGZ "F("
