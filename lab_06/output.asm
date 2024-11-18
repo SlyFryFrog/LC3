@@ -1,0 +1,19 @@
+.ORIG X4000
+
+; R0 = input number
+
+ST R1, SAVE_R1
+ST R7, SAVE_R7
+
+WHILE_NEXT
+
+    BRnzp WHILE_NEXT
+
+
+RETURN
+    LD R1, SAVE_R1
+    LD R7, SAVE R7
+
+SAVE_R1 .FILL #0
+SAVE_R7 .FILL #0
+.END
