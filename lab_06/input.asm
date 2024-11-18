@@ -1,4 +1,4 @@
-.ORIG X5000
+.ORIG X4000
 
 ; Output = R0
 
@@ -83,17 +83,18 @@ GET_INPUT
 
 ;;;;;; RETURN ;;;;;;
 RETURN
-    ADD R6, R6, #2
+    ADD R6, R6, #2  ; Pop local vars
 
-    LDR R0, R6, #-1
+    LDR R0, R6, #-1 ; Sets R0 for return
 
     LDR R5, R6, #0
-    ADD R6, R6, #1  ; pop frame ptr
+    ADD R6, R6, #1  ; Pop frame ptr
 
     LDR R7, R6, #0
-    ADD R6, R6, #1  ; pop return address
+    ADD R6, R6, #1  ; Pop return address
 
     LD R1, SAVE_R1
+
     RET
 ;;;;;;;;;;;;;;;;;;;;
 

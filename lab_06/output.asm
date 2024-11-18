@@ -1,19 +1,73 @@
-.ORIG X4000
+.ORIG X5000
+
+;;;;;; Setup ;;;;;;
+    ADD R6, R6, #-1
+    STR R7, R6, #0
+
+    ADD R6, R6, #-1
+    STR R5, R6, #0
+
+    ; Set frame ptr
+    ADD R5, R6, #0
+    
+    ST R0, SAVE_R0
+    ST R1, SAVE_R1
+;;;;;;;;;;;;;;;;;;;
 
 ; R0 = input number
 
-ST R1, SAVE_R1
-ST R7, SAVE_R7
+ADD R6, R6, #-1
+STR R0, R6, #0
 
-WHILE_NEXT
+ADD R6, R6, #-1
+AND R1, R1, #0
+STR R1, R6, #0
 
-    BRnzp WHILE_NEXT
+TENS
+    LDR R0, R6, #0
+    ADD R0, R0, #1
+    STR R0, R6, #0
 
+    LDR R0, R6, #1
+    ADD R0, R0, #-10
+    STR R0, R6, #1
+    BRzp TENS
+
+ONES
+    ; Tens digit
+    LDR R0, R6, #0
+    ADD R0, R0, #-1
+    LD R1, ASCII
+    ADD R0, R0, R1
+    STR R0, R6, #0
+    OUT
+
+    ; Ones digit
+    LDR R0, R6, #1
+    ADD R0, R0, #10
+    LD R1, ASCII
+    ADD R0, R0, R1
+    STR R0, R6, #1
+
+    OUT
+    BRnzp RETURN
 
 RETURN
-    LD R1, SAVE_R1
-    LD R7, SAVE R7
+    ADD R6, R6, #2
 
-SAVE_R1 .FILL #0
-SAVE_R7 .FILL #0
+    LDR R5, R6, #0
+    ADD R6, R6, #1  ; Pop frame ptr
+
+    LDR R7, R6, #0
+    ADD R6, R6, #1  ; Pop return address
+
+    LD R0, SAVE_R0
+    LD R1, SAVE_R1
+
+    RET
+
+SAVE_R0 .BLKW  #1
+SAVE_R1 .BLKW #1
+ASCII .FIlL #48
+
 .END

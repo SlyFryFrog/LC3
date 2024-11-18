@@ -73,6 +73,15 @@ MAIN
                 ADD R1, R0, R1
                 BRnp ELSE_IF_R
 
+                LEA R0, STR_7
+                PUTS
+            
+                TRAP x40
+                TRAP x41
+
+                LEA R0, STR_NL
+                PUTS
+
                 JSR ADD_VALUE
                 BRnzp WHILE_NOT_Q
             ELSE_IF_R
@@ -151,8 +160,6 @@ ADD_VALUE
     ADD R5, R6, #0  ; set frame pointer
 
     LDR R0, R6, #-3 ; **head
-
-    TRAP x41
 
     LDR R5, R6, #0
     ADD R6, R6, #1
