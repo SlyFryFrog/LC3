@@ -33,15 +33,18 @@ TENS
     STR R0, R6, #1
     BRzp TENS
 
-ONES
     ; Tens digit
     LDR R0, R6, #0
     ADD R0, R0, #-1
+    BRz ONES        ; Skips over 0 in tens place
+
     LD R1, ASCII
     ADD R0, R0, R1
     STR R0, R6, #0
     OUT
 
+    BRnzp ONES
+ONES
     ; Ones digit
     LDR R0, R6, #1
     ADD R0, R0, #10

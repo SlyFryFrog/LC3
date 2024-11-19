@@ -69,8 +69,8 @@ GET_INPUT
             BRnzp FOR_10
         BREAK
             LDR R0, R6, #2
-            STR R0, R6, #4
-            ADD R6, R6, #3
+            STR R0, R6, #4  ; Store in result
+            ADD R6, R6, #3  ; Pop local vars
             BRnzp RETURN
     ONES
         GETC

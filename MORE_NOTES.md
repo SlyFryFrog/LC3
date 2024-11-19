@@ -87,3 +87,40 @@ Linking: The linker combines the object code with any required libraries or exte
     - using 11 bits => label can be within +1024 / -1023 lines of JSR instruction
  - RET - Return
  
+ ## IO
+
+I/O Interface
+
+- Through a set of Device Registers:
+    - Status register (device is busy/idle/error)
+        - KBSR: keyboard status register
+        - DSR: display status register
+    - Data register (data to be moved to/from device)
+        - KBDR: keyboard data register
+        - DDR: display data register
+- The device registers have to be read/written by the CPU.
+
+Polling (handshake synchronization)
+- CPU checks the KBD Ready status bit
+- If set, CPU reads the data register and resets the Ready bit
+- Repeat
+- Makes CPU-I/O interaction seem to be 
+
+Polling: CPU in charge
+- CPU checks the ready bit of status register (as per program
+instructions).
+    - If (KBSR[15] == 1) then load KBDR[7:0] to a register.
+- If the I/O device is very slow, CPU is kept busy waiting.
+
+### IO Devices
+Keyboard
+- When key is struck
+    - ASCII code of character is written to KBDR[7:0] (least significant byte of data register)
+    - KBSR[15] (Ready Bit) is set to 1.
+    - Keyboard is locked until CPU reads KBDR.
+    - The CPU sees Ready Bit, reads KBDR, and clears the Ready Bit, unlocking the keyboard.
+Monitor
+- When CPU is ready to output a character
+    - CPU checks DSR[15] (Ready Bit) until it is set to 1
+    - CPU writes character to DDR[7:0]
+    - Monitor sets DSR[15] to 0 while it is busy displaying the character, then sets it back to 1 to indicate readiness for next character.
