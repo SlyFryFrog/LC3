@@ -62,9 +62,12 @@ MAIN
                 ADD R1, R0, R1
                 BRnp ELSE_IF_A
 
-                JSR PRINT_LIST
+                    ADD R6, R6, #-1 ; **head
+                    LDR R0, R6, #2
+                    STR R0, R6, #0
+                    JSR PRINT_LIST
 
-                BRnzp WHILE_NOT_Q
+                BRnzp CONTINUE
             ELSE_IF_A
                 LDR R0, R6, #0
                 LD R1, CHAR_A
@@ -73,17 +76,28 @@ MAIN
                 ADD R1, R0, R1
                 BRnp ELSE_IF_R
 
+                ADD R6, R6, #-1 ; input number
+
                 LEA R0, STR_7
                 PUTS
             
                 TRAP x40
+                STR R0, R6, #0
                 TRAP x41
 
                 LEA R0, STR_NL
                 PUTS
 
-                JSR ADD_VALUE
-                BRnzp WHILE_NOT_Q
+                    ADD R6, R6, #-1
+                    LDR R0, R6, #3  ; **head
+                    STR R0, R6, #0
+
+                    ADD R6, R6, #-1
+                    LDR R0, R6, #2  ; input num
+                    STR R0, R6, #0
+                    JSR ADD_VALUE
+
+                BRnzp CONTINUE
             ELSE_IF_R
                 LDR R0, R6, #0
                 LD R1, CHAR_R
@@ -91,10 +105,10 @@ MAIN
                 ADD R1, R1, #1
                 ADD R1, R0, R1
                 BRnp ELSE_IF_Q
-            
+
                 JSR REMOVE_VALUE
                 
-                BRnzp WHILE_NOT_Q
+                BRnzp CONTINUE
             ELSE_IF_Q
                 LDR R0, R6, #0
                 LD R1, CHAR_Q
@@ -105,6 +119,12 @@ MAIN
                 
                 JSR BREAK
 
+                LEA R0, STR_NL
+                PUTS
+                BRnzp CONTINUE
+            CONTINUE
+                LEA R0, STR_NL
+                PUTS
                 BRnzp WHILE_NOT_Q
     BREAK
 HALT
@@ -139,14 +159,25 @@ PRINT_LIST
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
 
+    ; if (*head == NULL)
+    LDR R0, R6, #2  ; *head
+    BRz EMPTY
+
+    EMPTY
+        LEA R0, STR_EMPTY
+        PUTS
+        BRnzp RETURN_PRINT_LIST
 
 
-    LDR R5, R6, #0
-    ADD R6, R6, #1
+    RETURN_PRINT_LIST
+        LDR R5, R6, #0
+        ADD R6, R6, #1
 
-    LDR R7, R6, #0
-    ADD R6, R6, #1
+        LDR R7, R6, #0
+        ADD R6, R6, #1
 RET
+
+STR_EMPTY .STRINGZ "The list is empty.\n"
 
 ;;; void addValue ;;;
 ; params node_t **head, int added
@@ -159,13 +190,23 @@ ADD_VALUE
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
 
-    LDR R0, R6, #-3 ; **head
+    LDR R0, R6, #3 ; **head
+    BRnp ADD_NUM
 
-    LDR R5, R6, #0
-    ADD R6, R6, #1
+    ; else, *head == NULL
+    LEA R0, LIST_BASE
+    STR R0, R6, #3
+    LDR R0, R0, #0
 
-    LDR R7, R6, #0
-    ADD R6, R6, #1
+
+    ADD_NUM
+
+    RETURN_ADD_VALUE
+        LDR R5, R6, #0
+        ADD R6, R6, #1
+
+        LDR R7, R6, #0
+        ADD R6, R6, #1
 RET
 
 ;;; void removeValue ;;;
@@ -187,5 +228,7 @@ REMOVE_VALUE
         LDR R7, R6, #0
         ADD R6, R6, #1
 RET
+
+LIST_BASE .FILL x8000
 
 .END
