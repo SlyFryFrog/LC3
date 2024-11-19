@@ -190,16 +190,51 @@ ADD_VALUE
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
 
-    LDR R0, R6, #3 ; **head
+    LDR R0, R5, #3 ; **head
     BRnp ADD_NUM
 
     ; else, *head == NULL
     LEA R0, LIST_BASE
-    STR R0, R6, #3
     LDR R0, R0, #0
+    LDR R1, R6, #2  ; int added
+    STR R1, R0, #0
+    STR R0, R6, #3
+  
+    AND R1, R1, #0
+    STR R1, R0, #1  ; head->next = NULL
+    STR R0, R6, #3
 
+    BRnzp RETURN_ADD_VALUE
 
     ADD_NUM
+        ADD R5, R5, #-1
+        LDR R0, R5, #4
+        STR R0, R5, #0  ; *current = *head;
+
+        WHILE_NULL
+            LDR R0, R5, #0
+            ADD R0, R0, #1
+            LDR R0, R0, #0  ; *next
+            BRz BREAK_WHILE_NULL
+
+            STR R0, R5, #0  ; current = current->next
+
+            BRnzp WHILE_NULL
+
+        BREAK_WHILE_NULL
+            LDR R0, R5, #0  ; node
+            ADD R0, R0, #1
+
+            LDR R1, R5, #0
+            ADD R1, R1, #2
+            STR R1, R1, #0  ; create ptr
+            STR R1, R0, #0
+            
+            LDR R1, R6, #2
+            LDR R0, R0, #0
+            STR R1, R0, #0
+            
+            BRnzp RETURN_ADD_VALUE
 
     RETURN_ADD_VALUE
         LDR R5, R6, #0
