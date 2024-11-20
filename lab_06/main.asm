@@ -29,104 +29,105 @@ MAIN
     ;;;;;; while(selection != 'q') ;;;;;;
     WHILE_NOT_Q
         ;;; PRINT OPTIONS ;;;
-            LEA R0, STR_1
+        LEA R0, STR_1
+        PUTS
+        
+        LEA R0, STR_2
+        PUTS
+
+        LEA R0, STR_3
+        PUTS
+
+        LEA R0, STR_4
+        PUTS
+
+        LEA R0, STR_5
+        PUTS
+
+        LEA R0, STR_6
+        PUTS
+        
+        ;;; GET_INPUT ;;;
+        GETC
+        OUT
+        STR R0, R6, #0  ; x5FFC
+        LD R0, STR_NL
+        OUT
+
+        IF_P
+            LDR R0, R6, #0
+            LD R1, CHAR_P
+            NOT R1, R1
+            ADD R1, R1, #1
+            ADD R1, R0, R1
+            BRnp ELSE_IF_A
+
+                ADD R6, R6, #-1 ; **head
+                ADD R0, R6, #2
+                STR R0, R6, #0
+                JSR PRINT_LIST
+                ADD R6, R6, #1  ; pop head param
+
+            BRnzp CONTINUE
+        ELSE_IF_A
+            LDR R0, R6, #0
+            LD R1, CHAR_A
+            NOT R1, R1
+            ADD R1, R1, #1
+            ADD R1, R0, R1
+            BRnp ELSE_IF_R
+
+            ADD R6, R6, #-1 ; input number
+
+            LEA R0, STR_7
             PUTS
-            
-            LEA R0, STR_2
+        
+            TRAP x40
+            STR R0, R6, #0      ; x5FFB
+            TRAP x41
+
+            LEA R0, STR_NL
             PUTS
 
-            LEA R0, STR_3
-            PUTS
+            ADD R6, R6, #-1 ; x5FFA
+            ADD R0, R6, #3  ; **head - x5FFD
+            STR R0, R6, #0
 
-            LEA R0, STR_4
-            PUTS
+            ADD R6, R6, #-1 ; x5FF9
+            LDR R0, R6, #2  ; input num
+            STR R0, R6, #0
+            JSR ADD_VALUE
+            ADD R6, R6, #3  ; x5FFC
 
-            LEA R0, STR_5
-            PUTS
+            BRnzp CONTINUE
+        ELSE_IF_R
+            LDR R0, R6, #0
+            LD R1, CHAR_R
+            NOT R1, R1
+            ADD R1, R1, #1
+            ADD R1, R0, R1
+            BRnp ELSE_IF_Q
 
-            LEA R0, STR_6
-            PUTS
-            
-            ;;; GET_INPUT ;;;
-                GETC
-                OUT
-                STR R0, R6, #0  ; x5FFC
-                LD R0, STR_NL
-                OUT
-
-            IF_P
-                LDR R0, R6, #0
-                LD R1, CHAR_P
-                NOT R1, R1
-                ADD R1, R1, #1
-                ADD R1, R0, R1
-                BRnp ELSE_IF_A
-
-                    ADD R6, R6, #-1 ; **head
-                    LDR R0, R6, #2
-                    STR R0, R6, #0
-                    JSR PRINT_LIST
-
-                BRnzp CONTINUE
-            ELSE_IF_A
-                LDR R0, R6, #0
-                LD R1, CHAR_A
-                NOT R1, R1
-                ADD R1, R1, #1
-                ADD R1, R0, R1
-                BRnp ELSE_IF_R
-
-                ADD R6, R6, #-1 ; input number
-
-                LEA R0, STR_7
-                PUTS
-            
-                TRAP x40
-                STR R0, R6, #0      ; x5FFB
-                TRAP x41
-
-                LEA R0, STR_NL
-                PUTS
-
-                    ADD R6, R6, #-1 ; x5FFA
-                    ADD R0, R6, #3  ; **head - x5FFD
-                    STR R0, R6, #0
-
-                    ADD R6, R6, #-1 ; x5FF9
-                    LDR R0, R6, #2  ; input num
-                    STR R0, R6, #0
-                    JSR ADD_VALUE
-                    ADD R6, R6, #3  ; x5FFC
-
-                BRnzp CONTINUE
-            ELSE_IF_R
-                LDR R0, R6, #0
-                LD R1, CHAR_R
-                NOT R1, R1
-                ADD R1, R1, #1
-                ADD R1, R0, R1
-                BRnp ELSE_IF_Q
-
-                JSR REMOVE_VALUE
+            JSR REMOVE_VALUE
                 
-                BRnzp CONTINUE
-            ELSE_IF_Q
-                LDR R0, R6, #0
-                LD R1, CHAR_Q
-                NOT R1, R1
-                ADD R1, R1, #1
-                ADD R1, R0, R1
-                BRnp WHILE_NOT_Q
-                
-                JSR BREAK
+            BRnzp CONTINUE
+        ELSE_IF_Q
+            LDR R0, R6, #0
+            LD R1, CHAR_Q
+            NOT R1, R1
+            ADD R1, R1, #1
+            ADD R1, R0, R1
+            BRnp WHILE_NOT_Q
+            
+            JSR BREAK
 
-                LEA R0, STR_NL
-                PUTS
-                BRnzp CONTINUE
-            CONTINUE
-                LEA R0, STR_NL
-                PUTS
-                BRnzp WHILE_NOT_Q
+            LEA R0, STR_NL
+            PUTS
+            BRnzp CONTINUE
+        CONTINUE
+            LEA R0, STR_NL
+            PUTS
+            BRnzp WHILE_NOT_Q
     BREAK
 HALT
 
@@ -161,14 +162,48 @@ PRINT_LIST
     ADD R5, R6, #0  ; set frame pointer
 
     ; if (*head == NULL)
-    LDR R0, R6, #2  ; *head
+    LDR R0, R5, #2  ; *head
+    LDR R0, R0, #0  ; &head
     BRz EMPTY
+    BRnzp PRINT
 
     EMPTY
         LEA R0, STR_EMPTY
         PUTS
         BRnzp RETURN_PRINT_LIST
 
+    PRINT
+        ADD R6, R6, #-1
+        STR R0, R6, #0
+
+        LDR R0, R6, #0  ; x####
+        LDR R0, R0, #0  ; int
+        TRAP x41
+
+        ; Load next
+        LDR R0, R6, #0  ; *next
+        ADD R0, R0, #1  ; x#### + 1
+        STR R0, R6, #0
+
+        PRINT_LOOP
+            LDR R0, R6, #0
+            LDR R0, R0, #0
+            BRz BREAK_PRINT
+            STR R0, R6, #0
+
+            LEA R0, STR_PTR
+            PUTS
+
+            LDR R0, R6, #0  ; x#### <- x#### + 1
+            LDR R0, R0, #0  ; int
+            TRAP x41
+            LDR R0, R6, #0
+            ADD R0, R0, #1  ; *next
+            STR R0, R6, #0
+            BRnzp PRINT_LOOP
+
+        BREAK_PRINT
+            ADD R6, R6, #1
 
     RETURN_PRINT_LIST
         LDR R5, R6, #0
@@ -179,6 +214,7 @@ PRINT_LIST
 RET
 
 STR_EMPTY .STRINGZ "The list is empty.\n"
+STR_PTR .STRINGZ  " -> "
 
 ;;; void addValue ;;;
 ; params node_t **head [x5FFA], int added [x5FF9]

@@ -25,3 +25,5 @@ if [ -f "$SCRIPT_FILE" ]; then
 else
     echo "Error: Unable to create script file. Please check file permissions and paths."
 fi
+
+f_lc3 --clean -r
