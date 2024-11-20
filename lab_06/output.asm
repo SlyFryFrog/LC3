@@ -17,11 +17,11 @@
 ; R0 = input number
 
 ADD R6, R6, #-1
-STR R0, R6, #0
+STR R0, R6, #0  ; input num
 
 ADD R6, R6, #-1
 AND R1, R1, #0
-STR R1, R6, #0
+STR R1, R6, #0  ; x0
 
 TENS
     LDR R0, R6, #0

@@ -82,20 +82,21 @@ MAIN
                 PUTS
             
                 TRAP x40
-                STR R0, R6, #0
+                STR R0, R6, #0      ; x5FFB
                 TRAP x41
 
                 LEA R0, STR_NL
                 PUTS
 
-                    ADD R6, R6, #-1
-                    LDR R0, R6, #3  ; **head
+                    ADD R6, R6, #-1 ; x5FFA
+                    ADD R0, R6, #3  ; **head - x5FFD
                     STR R0, R6, #0
 
-                    ADD R6, R6, #-1
+                    ADD R6, R6, #-1 ; x5FF9
                     LDR R0, R6, #2  ; input num
                     STR R0, R6, #0
                     JSR ADD_VALUE
+                    ADD R6, R6, #3  ; x5FFC
 
                 BRnzp CONTINUE
             ELSE_IF_R
@@ -180,60 +181,68 @@ RET
 STR_EMPTY .STRINGZ "The list is empty.\n"
 
 ;;; void addValue ;;;
-; params node_t **head, int added
+; params node_t **head [x5FFA], int added [x5FF9]
 ;;;;;;;;;;;;;;;;;;;;;
-ADD_VALUE
-    ADD R6, R6, #-1
+ADD_VALUE           ; x5FF9
+    ADD R6, R6, #-1 ; x5FF8
     STR R7, R6, #0	; return address (R7)
 
-    ADD R6, R6, #-1
+    ADD R6, R6, #-1 ; x5FF7
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
 
-    LDR R0, R5, #3 ; **head
+    LDR R0, R5, #3  ; x5FFA
+    LDR R0, R0, #0
+
     BRnp ADD_NUM
 
     ; else, *head == NULL
-    LEA R0, LIST_BASE
-    LDR R0, R0, #0
-    LDR R1, R6, #2  ; int added
-    STR R1, R0, #0
-    STR R0, R6, #3
-  
-    AND R1, R1, #0
-    STR R1, R0, #1  ; head->next = NULL
-    STR R0, R6, #3
+        LD R0, LIST_BASE    ; x8000
 
-    BRnzp RETURN_ADD_VALUE
+        LDR R1, R5, #3      ; x5FFD <- x5FFA
+
+        STR R0, R1, #0      ; x8000 -> x5FFD
+
+        LDR R0, R6, #3      ; x5FFD <- x5FFA
+        LDR R0, R0, #0      ; x8000 <- x5FFD
+        LDR R1, R6, #2      ; int added
+        STR R1, R0, #0      ; int -> x8000
+
+        AND R1, R1, #0      ; x0
+        STR R1, R0, #1      ; x8001
+        BRnzp RETURN_ADD_VALUE
 
     ADD_NUM
-        ADD R5, R5, #-1
-        LDR R0, R5, #4
-        STR R0, R5, #0  ; *current = *head;
+        ADD R6, R6, #-1
+        LDR R0, R5, #3      ; x5FFD <- x5FFA
+        LDR R0, R0, #0      ; x8000 <- x5FFD
+        STR R0, R6, #0      ; *head -> current;
 
         WHILE_NULL
-            LDR R0, R5, #0
-            ADD R0, R0, #1
-            LDR R0, R0, #0  ; *next
+            LDR R0, R6, #0  ; x####                 ; x8000
+            ADD R0, R0, #1  ; x#### + 1             ; x8001
+            LDR R0, R0, #0  ; *next <- x#### + 1    ; null || x8002 <- x8001
             BRz BREAK_WHILE_NULL
 
-            STR R0, R5, #0  ; current = current->next
+            STR R0, R6, #0  ; current = current->next
 
             BRnzp WHILE_NULL
 
         BREAK_WHILE_NULL
-            LDR R0, R5, #0  ; node
-            ADD R0, R0, #1
+            LDR R0, R6, #0
 
-            LDR R1, R5, #0
-            ADD R1, R1, #2
-            STR R1, R1, #0  ; create ptr
-            STR R1, R0, #0
-            
-            LDR R1, R6, #2
-            LDR R0, R0, #0
-            STR R1, R0, #0
-            
+            LDR R1, R6, #0 
+            ADD R1, R1, #2  ; x#### + 2 -> next
+
+            STR R1, R0, #1
+
+            LDR R1, R5, #2  ; input, x5FF9
+            STR R1, R0, #2  ; next <- input
+
+            AND R1, R1, #0
+            STR R1, R0, #3
+
+            ADD R6, R6, #1  ; pop current
             BRnzp RETURN_ADD_VALUE
 
     RETURN_ADD_VALUE
