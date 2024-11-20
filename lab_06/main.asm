@@ -2,7 +2,51 @@
 
 ;;;;;; PTR SETUP ;;;;;;
 LD R6, STACK_PTR
+LD R4, GLOBAL_VARS_PTR
+
+LD R0, CHAR_A
+STR R0, R4, #0
+ADD R4, R4, #-1
+LD R0, CHAR_P
+STR R0, R4, #0
+ADD R4, R4, #-1
+LD R0, CHAR_Q
+STR R0, R4, #0
+ADD R4, R4, #-1
+LD R0, CHAR_R
+STR R0, R4, #0
+ADD R4, R4, #-1
+LD R0, CHAR_S
+STR R0, R4, #0
+ADD R4, R4, #-1
+LEA R0, STR_1
+STR R0, R4, #0
+ADD R4, R4, #-1
+LEA R0, STR_2
+STR R0, R4, #0
+ADD R4, R4, #-1
+LEA R0, STR_3
+STR R0, R4, #0
+ADD R4, R4, #-1
+LEA R0, STR_NL
+STR R0, R4, #0
 ;;;;;;;;;;;;;;;;;;;;;;;
+
+BRnzp MAIN
+
+STACK_PTR .FILL x6000
+GLOBAL_VARS_PTR .FILL x4500
+
+CHAR_A .FILL #97
+CHAR_P .FILL #112
+CHAR_Q .FILL #113
+CHAR_R .FILL #114
+CHAR_S .FILL #115
+
+STR_1 .STRINGZ "Available options:\np - Print linked list\na - Add value to linked list\nr - Remove value from linked list\nq - Quit\nChoose an option: "
+STR_2 .STRINGZ "Type a number to add: "
+STR_3 .STRINGZ "Type a number to remove: "
+STR_NL .STRINGZ "\n"
 
 MAIN
     ;;;;;; Setup ;;;;;;
@@ -29,34 +73,19 @@ MAIN
     ;;;;;; while(selection != 'q') ;;;;;;
     WHILE_NOT_Q
         ;;; PRINT OPTIONS ;;;
-        LEA R0, STR_1
-        PUTS
-        
-        LEA R0, STR_2
-        PUTS
-
-        LEA R0, STR_3
-        PUTS
-
-        LEA R0, STR_4
-        PUTS
-
-        LEA R0, STR_5
-        PUTS
-
-        LEA R0, STR_6
+        LDR R0, R4, #3  ; STR_1
         PUTS
         
         ;;; GET_INPUT ;;;
         GETC
         OUT
         STR R0, R6, #0  ; x5FFC
-        LD R0, STR_NL
-        OUT
+        LDR R0, R4, #0  ; STR_NL
+        PUTS
 
         IF_P
             LDR R0, R6, #0
-            LD R1, CHAR_P
+            LDR R1, R4, #7  ; CHAR_P
             NOT R1, R1
             ADD R1, R1, #1
             ADD R1, R0, R1
@@ -71,7 +100,7 @@ MAIN
             BRnzp CONTINUE
         ELSE_IF_A
             LDR R0, R6, #0
-            LD R1, CHAR_A
+            LDR R1, R4, #8  ; CHAR_A
             NOT R1, R1
             ADD R1, R1, #1
             ADD R1, R0, R1
@@ -79,14 +108,14 @@ MAIN
 
             ADD R6, R6, #-1 ; input number
 
-            LEA R0, STR_7
+            LDR R0, R4, #2  ; STR_2
             PUTS
         
             TRAP x40
-            STR R0, R6, #0      ; x5FFB
+            STR R0, R6, #0  ; x5FFB
             TRAP x41
 
-            LEA R0, STR_NL
+            LDR R0, R4, #0  ; STR_NL
             PUTS
 
             ADD R6, R6, #-1 ; x5FFA
@@ -102,7 +131,7 @@ MAIN
             BRnzp CONTINUE
         ELSE_IF_R
             LDR R0, R6, #0
-            LD R1, CHAR_R
+            LDR R1, R4, #5  ; CHAR_R
             NOT R1, R1
             ADD R1, R1, #1
             ADD R1, R0, R1
@@ -113,7 +142,7 @@ MAIN
             BRnzp CONTINUE
         ELSE_IF_Q
             LDR R0, R6, #0
-            LD R1, CHAR_Q
+            LDR R1, R4, #6  ; CHAR_Q
             NOT R1, R1
             ADD R1, R1, #1
             ADD R1, R0, R1
@@ -121,34 +150,15 @@ MAIN
             
             JSR BREAK
 
-            LEA R0, STR_NL
+            LDR R0, R4, #0  ; STR_NL
             PUTS
             BRnzp CONTINUE
         CONTINUE
-            LEA R0, STR_NL
+            LDR R0, R4, #0  ; STR_NL
             PUTS
             BRnzp WHILE_NOT_Q
     BREAK
 HALT
-
-STACK_PTR .FILL x6000
-GLOBAL_PTR .FILL x5000
-
-CHAR_A .FILL #97
-CHAR_P .FILL #112
-CHAR_Q .FILL #113
-CHAR_R .FILL #114
-CHAR_S .FILL #115
-
-STR_1 .STRINGZ "Available options:\n"
-STR_2 .STRINGZ "p - Print linked list\n"
-STR_3 .STRINGZ "a - Add value to linked list\n"
-STR_4 .STRINGZ "r - Remove value from linked list\n"
-STR_5 .STRINGZ "q - Quit\n"
-STR_6 .STRINGZ "Choose an option: "
-STR_7 .STRINGZ "Type a number to add: "
-STR_8 .STRINGZ "Type a number to remove: "
-STR_NL .STRINGZ "\n"
 
 ;;; void printList ;;;
 ; params node_t **head
@@ -175,6 +185,9 @@ PRINT_LIST
     PRINT
         ADD R6, R6, #-1
         STR R0, R6, #0
+
+        LEA R0, STR_CONTENTS
+        PUTS
 
         LDR R0, R6, #0  ; x####
         LDR R0, R0, #0  ; int
@@ -214,6 +227,7 @@ PRINT_LIST
 RET
 
 STR_EMPTY .STRINGZ "The list is empty.\n"
+STR_CONTENTS .STRINGZ "List contents:\n"
 STR_PTR .STRINGZ  " -> "
 
 ;;; void addValue ;;;
@@ -299,7 +313,6 @@ REMOVE_VALUE
     ADD R6, R6, #-1
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
-
     
     REMOVE_VALUE_RETURN
         LDR R5, R6, #0
