@@ -2,7 +2,7 @@
 
 ;;;;;; PTR SETUP ;;;;;;
 LD R6, STACK_PTR
-LD R4, GLOBAL_VARS_PTR
+LD R4, GLOBAL_VARS_PTR  ; Needed due to vars being out of scope
 
 LD R0, CHAR_A
 STR R0, R4, #0
@@ -112,8 +112,8 @@ MAIN
             PUTS
         
             TRAP x40
-            STR R0, R6, #0  ; x5FFB
             TRAP x41
+            STR R0, R6, #0  ; x5FFB
 
             LDR R0, R4, #0  ; STR_NL
             PUTS
@@ -137,8 +137,21 @@ MAIN
             ADD R1, R0, R1
             BRnp ELSE_IF_Q
 
+            LDR R0, R4, #1  ; STR_3
+            PUTS
+
+            ADD R6, R6, #-1 ; x5FFB
+            ADD R0, R6, #2
+            STR R0, R6, #0
+
+            TRAP x40
+            TRAP x41
+            ADD R6, R6, #-1
+            STR R0, R6, #0  ; int input
+
             JSR REMOVE_VALUE
-                
+            
+            ADD R6, R6, #2
             BRnzp CONTINUE
         ELSE_IF_Q
             LDR R0, R6, #0
@@ -313,7 +326,90 @@ REMOVE_VALUE
     ADD R6, R6, #-1
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
+
+    ADD R6, R6, #-1
+    LDR R0, R5, #3  ; ptr
+    LDR R0, R0, #0  ; head
+    STR R0, R6, #0  ; current = head
+
+    ; if head == removed
+    LDR R0, R6, #0  ; current
+    LDR R0, R0, #0  ; value
+    LDR R1, R5, #2  ; removed
+    NOT R1, R1
+    ADD R1, R1, #1
+    ADD R1, R0, R1
+    BRz IF_HEAD_IS_REMOVED
+
+
+    ADD R6, R6, #-1
+    AND R0, R0, #0
+    STR R0, R6, #0  ; prev = NULL
+    BRnzp WHILE_NOT_EQUAL
+
+    IF_HEAD_IS_REMOVED
+        LDR R0, R6, #0  ; head
+        ADD R0, R0, #1  ; head->next
+        LDR R0, R0, #0  ; next
+        BRz SET_NULL
+
+        LDR R0, R6, #4  ; ptr    
+        LDR R0, R0, #0  ; head
+        ADD R0, R0, #1  ; head->next
+        LDR R0, R0, #0
+        LDR R1, R6, #4
+        STR R0, R1, #0
+
+        ADD R6, R6, #1
+        BRnzp REMOVE_VALUE_RETURN
+
+        SET_NULL
+            LDR R0, R6, #4  ; head
+            AND R1, R1, #0
+            STR R1, R0, #0
+            ADD R6, R6, #1
+            BRnzp REMOVE_VALUE_RETURN
+
+    WHILE_NOT_EQUAL
+        LDR R0, R6, #1  ; current
+        LDR R0, R0, #0  ; data
+        
+        LDR R1, R5, #2  ; removed
+        NOT R1, R1
+        ADD R1, R1, #1
+        ADD R1, R0, R1  ; data - removed
+        BRz POP
+
+        ; next is null?
+        LDR R0, R6, #1  ; current
+        ADD R0, R0, #1  ; current->next
+        LDR R0, R0, #0  ; next
+        BRz BREAK_WHILE_NOT_EQUAL
+
+        LDR R0, R6, #1 
+        STR R0, R6, #0  ; prev = current
+        ; next
+        LDR R0, R6, #1  ; current
+        ADD R0, R0, #1  ; current->next
+        LDR R0, R0, #0  ; next
+        STR R0, R6, #1  ; current = next
+
+        BRnzp WHILE_NOT_EQUAL
+    BREAK_WHILE_NOT_EQUAL
+        ADD R6, R6, #2
+        BRnzp REMOVE_VALUE_RETURN
     
+    POP
+        LDR R0, R6, #1  ; current
+        ADD R0, R0, #1  ; current->next
+        LDR R0, R0, #0  ; next
+        LDR R1, R6, #0  ; prev
+        ADD R1, R1, #1  ; prev->next
+        STR R0, R1, #0
+        ADD R6, R6, #2
+
+        BRnzp REMOVE_VALUE_RETURN
+
     REMOVE_VALUE_RETURN
         LDR R5, R6, #0
         ADD R6, R6, #1
