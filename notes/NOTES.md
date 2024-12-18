@@ -5,7 +5,7 @@
 0000 		- First four bits indicate instruction
 0000 0000 0000 	- Next twelve bits indicate procedure
 
-### Two possible formats for ADD
+## Two possible formats for ADD
 
 ```
 0001 DR SR1 0 00 SR2

@@ -1,0 +1,23 @@
+.ORIG x3000
+
+
+LD R0, LOOP_START
+
+; for R0 = 0; i <= R1; R0++;
+LOOP
+    NOT R2, R0
+    ADD R2, R2, #1  ; -R0
+
+    ADD R2, R1, R2
+    BRz BREAK_LOOP
+
+    ADD R0, R0, #1
+BRnzp LOOP
+
+BREAK_LOOP
+
+HALT
+
+LOOP_START .FILL #0
+
+.END

@@ -254,6 +254,8 @@ ADD_VALUE           ; x5FF9
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
 
+    ST R1, ADD_STR_R1
+
     LDR R0, R5, #3  ; x5FFA
     LDR R0, R0, #0
 
@@ -309,12 +311,15 @@ ADD_VALUE           ; x5FF9
             BRnzp RETURN_ADD_VALUE
 
     RETURN_ADD_VALUE
+        LD R1, ADD_STR_R1
         LDR R5, R6, #0
         ADD R6, R6, #1
 
         LDR R7, R6, #0
         ADD R6, R6, #1
 RET
+
+ADD_STR_R1 .BLKW #1
 
 ;;; void removeValue ;;;
 ; params node_t **head, int removed
@@ -326,6 +331,8 @@ REMOVE_VALUE
     ADD R6, R6, #-1
     STR R5, R6, #0	; previous frame pointer (R5)
     ADD R5, R6, #0  ; set frame pointer
+
+    ST R1, REMOVE_STR_R1
 
     ADD R6, R6, #-1
     LDR R0, R5, #3  ; ptr
@@ -411,6 +418,7 @@ REMOVE_VALUE
         BRnzp REMOVE_VALUE_RETURN
 
     REMOVE_VALUE_RETURN
+        LD R1, REMOVE_STR_R1
         LDR R5, R6, #0
         ADD R6, R6, #1
 
@@ -419,5 +427,6 @@ REMOVE_VALUE
 RET
 
 LIST_BASE .FILL x8000
+REMOVE_STR_R1 .BLKW #1
 
 .END

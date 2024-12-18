@@ -9,8 +9,7 @@
     - Errors
         - Stack Underflow - trying to pop from an empty stack
         - Stack Overflow - trying to push to a full stack
-- The Runtime Stack allows gives us a place to store our
-variables
+- The Runtime Stack allows gives us a place to store our variables
     - There are two components of the runtime stack:
         - Stack Pointer
             - Use R6 for this
@@ -74,6 +73,7 @@ Linking: The linker combines the object code with any required libraries or exte
     - When you enter into a new function/subroutine, you will move your stack pointer to the top of this new area
 
     - Traps use a vector table
+
 # LC3
 
 ## Overview
@@ -87,7 +87,7 @@ Linking: The linker combines the object code with any required libraries or exte
     - using 11 bits => label can be within +1024 / -1023 lines of JSR instruction
  - RET - Return
  
- ## IO
+## IO
 
 I/O Interface
 
@@ -109,10 +109,12 @@ Polling (handshake synchronization)
 Polling: CPU in charge
 - CPU checks the ready bit of status register (as per program
 instructions).
+    - If (KBSR[14] == 1) then enable keyboard interupts.
     - If (KBSR[15] == 1) then load KBDR[7:0] to a register.
 - If the I/O device is very slow, CPU is kept busy waiting.
 
 ### IO Devices
+
 Keyboard
 - When key is struck
     - ASCII code of character is written to KBDR[7:0] (least significant byte of data register)
